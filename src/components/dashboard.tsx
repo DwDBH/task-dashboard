@@ -8,10 +8,16 @@ import { TaskList } from "./task-list";
 import { TaskForm } from "./task-form";
 import { StatsCards } from "./stats-cards";
 import { ThemeToggle } from "./theme-toggle";
+import { UserMenu } from "./user-menu";
 
 type Filter = "all" | "PENDING" | "IN_PROGRESS" | "DONE";
 
-export function Dashboard({ tasks }: { tasks: Task[] }) {
+type DashboardProps = {
+  tasks: Task[];
+  user: { email: string; name?: string };
+};
+
+export function Dashboard({ tasks, user }: DashboardProps) {
   const [filter, setFilter] = useState<Filter>("all");
 
   const filtered =
@@ -29,6 +35,7 @@ export function Dashboard({ tasks }: { tasks: Task[] }) {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <TaskForm />
+          <UserMenu email={user.email} name={user.name} />
         </div>
       </div>
 
