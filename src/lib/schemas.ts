@@ -21,6 +21,7 @@ export type Task = {
   id: string;
   title: string;
   description: string | null;
+  imageUrl: string | null;
   status: "PENDING" | "IN_PROGRESS" | "DONE";
   priority: "LOW" | "MEDIUM" | "HIGH";
   createdAt: Date;

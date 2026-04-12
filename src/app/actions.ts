@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { taskSchema } from "@/lib/schemas";
 import { addTask, updateTaskStatus, deleteTask } from "@/lib/store";
 
-export async function createTask(formData: unknown) {
+export async function createTask(formData: unknown, imageUrl?: string) {
   const parsed = taskSchema.safeParse(formData);
 
   if (!parsed.success) {
@@ -14,6 +14,7 @@ export async function createTask(formData: unknown) {
   addTask({
     title: parsed.data.title,
     description: parsed.data.description || undefined,
+    imageUrl: imageUrl || undefined,
     priority: parsed.data.priority,
   });
 

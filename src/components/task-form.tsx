@@ -24,6 +24,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ImageUpload } from "@/components/image-upload";
 
 import { taskSchema, type TaskFormData } from "@/lib/schemas";
 import { createTask } from "@/app/actions";
@@ -31,6 +32,7 @@ import { createTask } from "@/app/actions";
 export function TaskForm() {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const {
     register,
@@ -49,11 +51,12 @@ export function TaskForm() {
 
   async function onSubmit(data: TaskFormData) {
     setSubmitting(true);
-    const result = await createTask(data);
+    const result = await createTask(data, imageUrl ?? undefined);
     setSubmitting(false);
 
     if (result.success) {
       reset();
+      setImageUrl(null);
       setOpen(false);
     }
   }
@@ -110,6 +113,11 @@ export function TaskForm() {
                 </motion.p>
               )}
             </AnimatePresence>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Imagem (opcional)</Label>
+            <ImageUpload onUpload={setImageUrl} currentUrl={imageUrl} />
           </div>
 
           <div className="space-y-2">

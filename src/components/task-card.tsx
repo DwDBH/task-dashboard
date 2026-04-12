@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Trash2, ArrowRight, Clock, CheckCircle2, Circle } from "lucide-react";
 import { useState } from "react";
+import Image from "next/image";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -129,6 +130,18 @@ export function TaskCard({ task }: { task: Task }) {
           </div>
         </CardHeader>
         <CardContent>
+          {task.imageUrl && (
+            <div className="mb-3 overflow-hidden rounded-md">
+              <Image
+                src={task.imageUrl}
+                alt={task.title}
+                width={400}
+                height={200}
+                className="w-full h-32 object-cover"
+                unoptimized
+              />
+            </div>
+          )}
           {task.description && (
             <p className="mb-3 text-sm text-muted-foreground">
               {task.description}

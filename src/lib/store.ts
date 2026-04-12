@@ -6,6 +6,7 @@ const tasks: Task[] = [
     id: "1",
     title: "Configurar Supabase Auth",
     description: "Integrar autenticação com Supabase e criar middleware de proteção de rotas",
+    imageUrl: null,
     status: "DONE",
     priority: "HIGH",
     createdAt: new Date("2026-04-10"),
@@ -15,6 +16,7 @@ const tasks: Task[] = [
     id: "2",
     title: "Criar API de pagamentos",
     description: "Implementar integração com Stripe para pagamentos internacionais",
+    imageUrl: null,
     status: "IN_PROGRESS",
     priority: "HIGH",
     createdAt: new Date("2026-04-11"),
@@ -24,6 +26,7 @@ const tasks: Task[] = [
     id: "3",
     title: "Adicionar cache com Redis",
     description: "Configurar Upstash Redis para rate limiting e cache de sessões",
+    imageUrl: null,
     status: "PENDING",
     priority: "MEDIUM",
     createdAt: new Date("2026-04-12"),
@@ -33,6 +36,7 @@ const tasks: Task[] = [
     id: "4",
     title: "Enviar e-mails de boas-vindas",
     description: "Criar template com React Email e enviar via Resend",
+    imageUrl: null,
     status: "PENDING",
     priority: "LOW",
     createdAt: new Date("2026-04-12"),
@@ -51,12 +55,14 @@ export function getTasks(): Task[] {
 export function addTask(data: {
   title: string;
   description?: string;
+  imageUrl?: string;
   priority: "LOW" | "MEDIUM" | "HIGH";
 }): Task {
   const task: Task = {
     id: String(nextId++),
     title: data.title,
     description: data.description || null,
+    imageUrl: data.imageUrl || null,
     status: "PENDING",
     priority: data.priority,
     createdAt: new Date(),
