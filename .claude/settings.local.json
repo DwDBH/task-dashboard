@@ -11,7 +11,19 @@
       "Bash(vercel --version)",
       "Bash(supabase --version)",
       "Bash(git config:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(gh repo:*)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{redirect_url}\" http://localhost:3000)",
+      "Bash(fuser -k 3000/tcp)",
+      "Bash(fuser 3000/tcp)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} redirect:%{redirect_url}\" http://localhost:3000)",
+      "Bash(curl -s http://localhost:3000/login)",
+      "Bash(curl -s http://localhost:3000/registro)",
+      "Bash(git push:*)",
+      "Bash(vercel link:*)",
+      "Bash(vercel env:*)",
+      "Bash(vercel:*)"
     ]
   }
 }

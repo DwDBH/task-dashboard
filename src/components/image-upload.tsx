@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { ImagePlus, X, Loader2 } from "lucide-react";
+import { ImagePlus, X, Loader2, Upload } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
@@ -28,16 +28,15 @@ export function ImageUpload({
     setError(null);
 
     if (!file.type.startsWith("image/")) {
-      setError("Apenas imagens são permitidas");
+      setError("Apenas imagens sao permitidas");
       return;
     }
 
     if (file.size > MAX_SIZE) {
-      setError("Imagem deve ter no máximo 5MB");
+      setError("Imagem deve ter no maximo 5MB");
       return;
     }
 
-    // Show local preview immediately
     const localPreview = URL.createObjectURL(file);
     setPreview(localPreview);
 
@@ -92,27 +91,27 @@ export function ImageUpload({
       />
 
       {preview ? (
-        <div className="relative rounded-lg overflow-hidden border bg-muted">
+        <div className="relative overflow-hidden rounded-xl border bg-muted/30 shadow-[0_1px_3px_0_rgba(0,0,0,0.04)]">
           <Image
             src={preview}
             alt="Preview"
             width={400}
             height={200}
-            className="w-full h-32 object-cover"
+            className="w-full h-36 object-cover"
             unoptimized
           />
           <Button
             type="button"
             variant="destructive"
             size="icon-xs"
-            className="absolute top-1.5 right-1.5"
+            className="absolute top-2 right-2 shadow-md"
             onClick={handleRemove}
           >
             <X className="h-3 w-3" />
           </Button>
           {uploading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-background/60">
-              <Loader2 className="h-5 w-5 animate-spin" />
+            <div className="absolute inset-0 flex items-center justify-center bg-background/70 backdrop-blur-sm">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
             </div>
           )}
         </div>
@@ -121,14 +120,21 @@ export function ImageUpload({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed p-4 text-sm text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
+          className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border/60 bg-muted/20 p-5 text-sm transition-all hover:border-primary/40 hover:bg-primary/5"
         >
-          {uploading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <ImagePlus className="h-4 w-4" />
-          )}
-          {uploading ? "Enviando..." : "Adicionar imagem"}
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/8">
+            {uploading ? (
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            ) : (
+              <Upload className="h-4 w-4 text-primary" />
+            )}
+          </div>
+          <div>
+            <span className="font-medium text-foreground text-xs">
+              {uploading ? "Enviando..." : "Adicionar imagem"}
+            </span>
+            <p className="text-[11px] text-muted-foreground">PNG, JPG ate 5MB</p>
+          </div>
         </button>
       )}
 

@@ -1,11 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Trash2, ArrowRight, Clock, CheckCircle2, Circle } from "lucide-react";
+import {
+  Trash2,
+  ArrowRight,
+  Clock,
+  CheckCircle2,
+  Circle,
+} from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,23 +39,26 @@ const statusConfig = {
     label: "Pendente",
     variant: "secondary" as const,
     icon: Circle,
+    dot: "bg-amber-500",
   },
   IN_PROGRESS: {
     label: "Em andamento",
     variant: "default" as const,
     icon: Clock,
+    dot: "bg-blue-500",
   },
   DONE: {
-    label: "Concluída",
+    label: "Concluida",
     variant: "outline" as const,
     icon: CheckCircle2,
+    dot: "bg-emerald-500",
   },
 };
 
 const priorityConfig = {
-  LOW: { label: "Baixa", className: "text-muted-foreground" },
-  MEDIUM: { label: "Média", className: "text-yellow-500" },
-  HIGH: { label: "Alta", className: "text-destructive" },
+  LOW: { label: "Baixa", className: "text-muted-foreground", dot: "bg-muted-foreground/50" },
+  MEDIUM: { label: "Media", className: "text-amber-600", dot: "bg-amber-500" },
+  HIGH: { label: "Alta", className: "text-red-600", dot: "bg-red-500" },
 };
 
 const nextStatus: Record<Task["status"], Task["status"]> = {
@@ -63,7 +71,6 @@ export function TaskCard({ task }: { task: Task }) {
   const [loading, setLoading] = useState(false);
   const status = statusConfig[task.status];
   const priority = priorityConfig[task.priority];
-  const StatusIcon = status.icon;
 
   async function handleStatusChange(newStatus?: Task["status"]) {
     setLoading(true);
@@ -76,37 +83,57 @@ export function TaskCard({ task }: { task: Task }) {
     await removeTask(task.id);
   }
 
+  const isDone = task.status === "DONE";
+
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.2 }}
+      exit={{ opacity: 0, x: -20 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
     >
-      <Card
-        className={`transition-colors ${task.status === "DONE" ? "opacity-60" : ""}`}
+      <div
+        className={`group rounded-xl border bg-card shadow-[0_1px_3px_0_rgba(0,0,0,0.04)] transition-all hover:shadow-[0_3px_12px_0_rgba(0,0,0,0.06)] ${isDone ? "opacity-55" : ""}`}
       >
-        <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-          <div className="flex-1 space-y-1">
-            <CardTitle
-              className={`text-sm font-medium leading-tight ${task.status === "DONE" ? "line-through" : ""}`}
-            >
-              {task.title}
-            </CardTitle>
+        {/* Image */}
+        {task.imageUrl && (
+          <div className="overflow-hidden rounded-t-xl">
+            <Image
+              src={task.imageUrl}
+              alt={task.title}
+              width={600}
+              height={240}
+              className="h-36 w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+              unoptimized
+            />
           </div>
-          <div className="flex items-center gap-1">
+        )}
+
+        <div className="p-4">
+          {/* Title row */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-2.5 flex-1 min-w-0">
+              <div
+                className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${status.dot}`}
+              />
+              <h3
+                className={`text-sm font-medium leading-snug ${isDone ? "line-through text-muted-foreground" : ""}`}
+              >
+                {task.title}
+              </h3>
+            </div>
+
             <DropdownMenu>
               <DropdownMenuTrigger
-                className="cursor-pointer"
+                className="cursor-pointer shrink-0"
                 render={
                   <Badge
                     variant={status.variant}
-                    className="text-xs"
+                    className="text-[11px] font-medium"
                   />
                 }
               >
-                <StatusIcon className="mr-1 h-3 w-3" />
                 {status.label}
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -128,40 +155,33 @@ export function TaskCard({ task }: { task: Task }) {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        </CardHeader>
-        <CardContent>
-          {task.imageUrl && (
-            <div className="mb-3 overflow-hidden rounded-md">
-              <Image
-                src={task.imageUrl}
-                alt={task.title}
-                width={400}
-                height={200}
-                className="w-full h-32 object-cover"
-                unoptimized
-              />
-            </div>
-          )}
+
+          {/* Description */}
           {task.description && (
-            <p className="mb-3 text-sm text-muted-foreground">
+            <p className="mt-1.5 ml-[18px] text-[13px] leading-relaxed text-muted-foreground">
               {task.description}
             </p>
           )}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className={`text-xs font-medium ${priority.className}`}>
-                {priority.label}
+
+          {/* Footer */}
+          <div className="mt-3 ml-[18px] flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1.5 text-[11px] font-medium">
+                <span
+                  className={`inline-block h-1.5 w-1.5 rounded-full ${priority.dot}`}
+                />
+                <span className={priority.className}>{priority.label}</span>
               </span>
-              <span className="text-xs text-muted-foreground font-mono">
+              <span className="text-[11px] text-muted-foreground font-mono">
                 {task.createdAt.toLocaleDateString("pt-BR")}
               </span>
             </div>
-            <div className="flex items-center gap-1">
-              {task.status !== "DONE" && (
+            <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+              {!isDone && (
                 <Button
                   variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
+                  size="icon-xs"
+                  className="text-muted-foreground hover:text-primary"
                   onClick={() => handleStatusChange()}
                   disabled={loading}
                 >
@@ -173,8 +193,8 @@ export function TaskCard({ task }: { task: Task }) {
                   render={
                     <Button
                       variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                      size="icon-xs"
+                      className="text-muted-foreground hover:text-destructive"
                       disabled={loading}
                     />
                   }
@@ -185,8 +205,8 @@ export function TaskCard({ task }: { task: Task }) {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Excluir tarefa?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Essa ação não pode ser desfeita. A tarefa &quot;
-                      {task.title}&quot; será removida permanentemente.
+                      Essa acao nao pode ser desfeita. A tarefa &quot;
+                      {task.title}&quot; sera removida permanentemente.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -199,8 +219,8 @@ export function TaskCard({ task }: { task: Task }) {
               </AlertDialog>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </motion.div>
   );
 }
