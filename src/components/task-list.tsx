@@ -8,9 +8,11 @@ import { TaskCard } from "./task-card";
 export function TaskList({
   tasks,
   projects,
+  userEmail,
 }: {
   tasks: Task[];
   projects: Project[];
+  userEmail: string;
 }) {
   const projectMap = new Map(projects.map((p) => [p.id, p]));
 
@@ -24,6 +26,7 @@ export function TaskList({
             project={
               task.projectId ? projectMap.get(task.projectId) : undefined
             }
+            isOwner={task.userId === userEmail}
           />
         ))}
       </AnimatePresence>

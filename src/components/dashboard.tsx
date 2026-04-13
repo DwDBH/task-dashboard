@@ -125,7 +125,7 @@ export function Dashboard({ tasks, projects, user }: DashboardProps) {
             </Select>
           </div>
           <TabsContent value={filter}>
-            <TaskList tasks={filtered} projects={projects} />
+            <TaskList tasks={filtered} projects={projects} userEmail={user.email} />
           </TabsContent>
         </Tabs>
       </motion.div>

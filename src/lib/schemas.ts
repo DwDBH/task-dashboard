@@ -22,6 +22,7 @@ export type Project = {
   id: string;
   name: string;
   color: string;
+  userId: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -32,11 +33,28 @@ export type Task = {
   description: string | null;
   imageUrl: string | null;
   projectId: string | null;
+  project?: Project | null;
+  userId: string;
+  assignedTo: string | null;
   status: "PENDING" | "IN_PROGRESS" | "DONE";
   priority: "LOW" | "MEDIUM" | "HIGH";
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type TaskLog = {
+  id: string;
+  taskId: string;
+  userId: string;
+  userName: string | null;
+  action: string;
+  details: string | null;
+  createdAt: Date;
+};
+
+export const assignSchema = z.object({
+  email: z.string().email("Email invalido"),
+});
 
 export const projectSchema = z.object({
   name: z

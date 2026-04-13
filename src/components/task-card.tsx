@@ -7,6 +7,9 @@ import {
   Clock,
   CheckCircle2,
   Circle,
+  UserPlus,
+  UserMinus,
+  History,
 } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
@@ -30,9 +33,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import type { Task, Project } from "@/lib/schemas";
 import { changeTaskStatus, removeTask } from "@/app/actions";
+import { AssignDialog } from "./assign-dialog";
+import { TaskLogSheet } from "./task-log-sheet";
 
 const statusConfig = {
   PENDING: {
@@ -67,7 +78,15 @@ const nextStatus: Record<Task["status"], Task["status"]> = {
   DONE: "PENDING",
 };
 
-export function TaskCard({ task, project }: { task: Task; project?: Project }) {
+export function TaskCard({
+  task,
+  project,
+  isOwner,
+}: {
+  task: Task;
+  project?: Project;
+  isOwner: boolean;
+}) {
   const [loading, setLoading] = useState(false);
   const status = statusConfig[task.status];
   const priority = priorityConfig[task.priority];
@@ -163,6 +182,25 @@ export function TaskCard({ task, project }: { task: Task; project?: Project }) {
             </p>
           )}
 
+          {/* Assigned badge */}
+          {task.assignedTo && (
+            <div className="mt-2 ml-[18px]">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Badge variant="outline" className="text-[10px] gap-1">
+                      <UserPlus className="h-3 w-3" />
+                      {task.assignedTo.split("@")[0]}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Atribuida para {task.assignedTo}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          )}
+
           {/* Footer */}
           <div className="mt-3 ml-[18px] flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -186,6 +224,40 @@ export function TaskCard({ task, project }: { task: Task; project?: Project }) {
               </span>
             </div>
             <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+              {/* Activity log */}
+              <TaskLogSheet taskId={task.id} taskTitle={task.title} />
+
+              {/* Assign */}
+              {isOwner && !task.assignedTo && (
+                <AssignDialog taskId={task.id} />
+              )}
+
+              {/* Unassign */}
+              {isOwner && task.assignedTo && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          className="text-muted-foreground hover:text-amber-600"
+                          onClick={async () => {
+                            const { unassignTaskFromUser } = await import("@/app/actions");
+                            await unassignTaskFromUser(task.id);
+                          }}
+                          disabled={loading}
+                        />
+                      }
+                    >
+                      <UserMinus className="h-3.5 w-3.5" />
+                    </TooltipTrigger>
+                    <TooltipContent>Remover atribuicao</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+
+              {/* Advance status */}
               {!isDone && (
                 <Button
                   variant="ghost"
@@ -197,35 +269,39 @@ export function TaskCard({ task, project }: { task: Task; project?: Project }) {
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Button>
               )}
-              <AlertDialog>
-                <AlertDialogTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon-xs"
-                      className="text-muted-foreground hover:text-destructive"
-                      disabled={loading}
-                    />
-                  }
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Excluir tarefa?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Essa acao nao pode ser desfeita. A tarefa &quot;
-                      {task.title}&quot; sera removida permanentemente.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete}>
-                      Excluir
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+
+              {/* Delete (owner only) */}
+              {isOwner && (
+                <AlertDialog>
+                  <AlertDialogTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        className="text-muted-foreground hover:text-destructive"
+                        disabled={loading}
+                      />
+                    }
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Excluir tarefa?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Essa acao nao pode ser desfeita. A tarefa &quot;
+                        {task.title}&quot; sera removida permanentemente.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete}>
+                        Excluir
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
             </div>
           </div>
         </div>

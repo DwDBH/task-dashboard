@@ -42,7 +42,7 @@ import {
   type ProjectFormData,
   type Project,
 } from "@/lib/schemas";
-import { PROJECT_COLORS } from "@/lib/store";
+import { PROJECT_COLORS } from "@/lib/constants";
 import {
   createProject,
   editProject,

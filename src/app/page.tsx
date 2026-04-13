@@ -13,8 +13,11 @@ export default async function Home() {
     redirect("/login");
   }
 
-  const tasks = getTasks();
-  const projects = getProjects();
+  const userId = user.email!;
+  const [tasks, projects] = await Promise.all([
+    getTasks(userId),
+    getProjects(userId),
+  ]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/30">
