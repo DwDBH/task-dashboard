@@ -4,25 +4,44 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { LayoutDashboard } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Task } from "@/lib/schemas";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { Task, Project } from "@/lib/schemas";
 import { TaskList } from "./task-list";
 import { TaskForm } from "./task-form";
 import { StatsCards } from "./stats-cards";
 import { ThemeToggle } from "./theme-toggle";
 import { UserMenu } from "./user-menu";
+import { ProjectManager } from "./project-manager";
 
 type Filter = "all" | "PENDING" | "IN_PROGRESS" | "DONE";
 
 type DashboardProps = {
   tasks: Task[];
+  projects: Project[];
   user: { email: string; name?: string };
 };
 
-export function Dashboard({ tasks, user }: DashboardProps) {
+export function Dashboard({ tasks, projects, user }: DashboardProps) {
   const [filter, setFilter] = useState<Filter>("all");
+  const [projectFilter, setProjectFilter] = useState<string>("all");
+
+  const filteredByProject =
+    projectFilter === "all"
+      ? tasks
+      : projectFilter === "__none__"
+        ? tasks.filter((t) => !t.projectId)
+        : tasks.filter((t) => t.projectId === projectFilter);
 
   const filtered =
-    filter === "all" ? tasks : tasks.filter((t) => t.status === filter);
+    filter === "all"
+      ? filteredByProject
+      : filteredByProject.filter((t) => t.status === filter);
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
@@ -48,7 +67,8 @@ export function Dashboard({ tasks, user }: DashboardProps) {
         </div>
         <div className="flex items-center gap-1.5">
           <ThemeToggle />
-          <TaskForm />
+          <ProjectManager projects={projects} />
+          <TaskForm projects={projects} />
           <UserMenu email={user.email} name={user.name} />
         </div>
       </motion.header>
@@ -60,7 +80,7 @@ export function Dashboard({ tasks, user }: DashboardProps) {
         transition={{ duration: 0.4, delay: 0.1 }}
         className="mb-8"
       >
-        <StatsCards tasks={tasks} />
+        <StatsCards tasks={filteredByProject} />
       </motion.div>
 
       {/* Content */}
@@ -73,16 +93,39 @@ export function Dashboard({ tasks, user }: DashboardProps) {
           defaultValue="all"
           onValueChange={(v) => setFilter(v as Filter)}
         >
-          <div className="mb-5 flex items-center justify-between">
+          <div className="mb-5 flex items-center justify-between gap-3">
             <TabsList>
               <TabsTrigger value="all">Todas</TabsTrigger>
               <TabsTrigger value="PENDING">Pendentes</TabsTrigger>
               <TabsTrigger value="IN_PROGRESS">Em andamento</TabsTrigger>
               <TabsTrigger value="DONE">Concluidas</TabsTrigger>
             </TabsList>
+            <Select
+              defaultValue="all"
+              onValueChange={(v) => setProjectFilter(v ?? "all")}
+            >
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Filtrar projeto" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os projetos</SelectItem>
+                <SelectItem value="__none__">Sem projeto</SelectItem>
+                {projects.map((project) => (
+                  <SelectItem key={project.id} value={project.id}>
+                    <span className="flex items-center gap-2">
+                      <span
+                        className="inline-block h-2.5 w-2.5 rounded-full"
+                        style={{ backgroundColor: project.color }}
+                      />
+                      {project.name}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <TabsContent value={filter}>
-            <TaskList tasks={filtered} />
+            <TaskList tasks={filtered} projects={projects} />
           </TabsContent>
         </Tabs>
       </motion.div>

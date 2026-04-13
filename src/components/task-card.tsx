@@ -31,7 +31,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-import type { Task } from "@/lib/schemas";
+import type { Task, Project } from "@/lib/schemas";
 import { changeTaskStatus, removeTask } from "@/app/actions";
 
 const statusConfig = {
@@ -67,7 +67,7 @@ const nextStatus: Record<Task["status"], Task["status"]> = {
   DONE: "PENDING",
 };
 
-export function TaskCard({ task }: { task: Task }) {
+export function TaskCard({ task, project }: { task: Task; project?: Project }) {
   const [loading, setLoading] = useState(false);
   const status = statusConfig[task.status];
   const priority = priorityConfig[task.priority];
@@ -166,6 +166,15 @@ export function TaskCard({ task }: { task: Task }) {
           {/* Footer */}
           <div className="mt-3 ml-[18px] flex items-center justify-between">
             <div className="flex items-center gap-3">
+              {project && (
+                <span className="flex items-center gap-1.5 text-[11px] font-medium">
+                  <span
+                    className="inline-block h-1.5 w-1.5 rounded-full"
+                    style={{ backgroundColor: project.color }}
+                  />
+                  <span className="text-muted-foreground">{project.name}</span>
+                </span>
+              )}
               <span className="flex items-center gap-1.5 text-[11px] font-medium">
                 <span
                   className={`inline-block h-1.5 w-1.5 rounded-full ${priority.dot}`}

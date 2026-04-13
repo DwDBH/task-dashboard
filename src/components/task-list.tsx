@@ -2,15 +2,29 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Inbox } from "lucide-react";
-import type { Task } from "@/lib/schemas";
+import type { Task, Project } from "@/lib/schemas";
 import { TaskCard } from "./task-card";
 
-export function TaskList({ tasks }: { tasks: Task[] }) {
+export function TaskList({
+  tasks,
+  projects,
+}: {
+  tasks: Task[];
+  projects: Project[];
+}) {
+  const projectMap = new Map(projects.map((p) => [p.id, p]));
+
   return (
     <div className="grid gap-3">
       <AnimatePresence mode="popLayout">
         {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} />
+          <TaskCard
+            key={task.id}
+            task={task}
+            project={
+              task.projectId ? projectMap.get(task.projectId) : undefined
+            }
+          />
         ))}
       </AnimatePresence>
       {tasks.length === 0 && (

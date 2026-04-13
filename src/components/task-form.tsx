@@ -26,10 +26,10 @@ import {
 } from "@/components/ui/dialog";
 import { ImageUpload } from "@/components/image-upload";
 
-import { taskSchema, type TaskFormData } from "@/lib/schemas";
+import { taskSchema, type TaskFormData, type Project } from "@/lib/schemas";
 import { createTask } from "@/app/actions";
 
-export function TaskForm() {
+export function TaskForm({ projects }: { projects: Project[] }) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -46,6 +46,7 @@ export function TaskForm() {
       title: "",
       description: "",
       priority: "MEDIUM",
+      projectId: "",
     },
   });
 
@@ -73,7 +74,7 @@ export function TaskForm() {
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Título</Label>
+            <Label htmlFor="title">Titulo</Label>
             <Input
               id="title"
               placeholder="Ex: Implementar autenticação"
@@ -94,7 +95,7 @@ export function TaskForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Descrição</Label>
+            <Label htmlFor="description">Descricao</Label>
             <Textarea
               id="description"
               placeholder="Descreva a tarefa..."
@@ -121,6 +122,34 @@ export function TaskForm() {
           </div>
 
           <div className="space-y-2">
+            <Label>Projeto (opcional)</Label>
+            <Select
+              defaultValue=""
+              onValueChange={(value) =>
+                setValue("projectId", !value || value === "__none__" ? "" : value)
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Sem projeto" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">Sem projeto</SelectItem>
+                {projects.map((project) => (
+                  <SelectItem key={project.id} value={project.id}>
+                    <span className="flex items-center gap-2">
+                      <span
+                        className="inline-block h-2.5 w-2.5 rounded-full"
+                        style={{ backgroundColor: project.color }}
+                      />
+                      {project.name}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
             <Label>Prioridade</Label>
             <Select
               defaultValue="MEDIUM"
@@ -133,7 +162,7 @@ export function TaskForm() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="LOW">Baixa</SelectItem>
-                <SelectItem value="MEDIUM">Média</SelectItem>
+                <SelectItem value="MEDIUM">Media</SelectItem>
                 <SelectItem value="HIGH">Alta</SelectItem>
               </SelectContent>
             </Select>

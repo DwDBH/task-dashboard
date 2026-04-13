@@ -1,8 +1,15 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { taskSchema } from "@/lib/schemas";
-import { addTask, updateTaskStatus, deleteTask } from "@/lib/store";
+import { taskSchema, projectSchema } from "@/lib/schemas";
+import {
+  addTask,
+  updateTaskStatus,
+  deleteTask,
+  addProject,
+  updateProject,
+  deleteProject as removeProject,
+} from "@/lib/store";
 
 export async function createTask(formData: unknown, imageUrl?: string) {
   const parsed = taskSchema.safeParse(formData);
@@ -16,6 +23,7 @@ export async function createTask(formData: unknown, imageUrl?: string) {
     description: parsed.data.description || undefined,
     imageUrl: imageUrl || undefined,
     priority: parsed.data.priority,
+    projectId: parsed.data.projectId || undefined,
   });
 
   revalidatePath("/");
@@ -41,6 +49,47 @@ export async function changeTaskStatus(id: string, status: string) {
 export async function removeTask(id: string) {
   const deleted = deleteTask(id);
   if (!deleted) return { error: "Tarefa não encontrada" };
+
+  revalidatePath("/");
+  return { success: true };
+}
+
+export async function createProject(formData: unknown) {
+  const parsed = projectSchema.safeParse(formData);
+
+  if (!parsed.success) {
+    return { error: parsed.error.flatten().fieldErrors };
+  }
+
+  addProject({
+    name: parsed.data.name,
+    color: parsed.data.color,
+  });
+
+  revalidatePath("/");
+  return { success: true };
+}
+
+export async function editProject(id: string, formData: unknown) {
+  const parsed = projectSchema.safeParse(formData);
+
+  if (!parsed.success) {
+    return { error: parsed.error.flatten().fieldErrors };
+  }
+
+  const project = updateProject(id, {
+    name: parsed.data.name,
+    color: parsed.data.color,
+  });
+  if (!project) return { error: "Projeto não encontrado" };
+
+  revalidatePath("/");
+  return { success: true };
+}
+
+export async function deleteProjectAction(id: string) {
+  const deleted = removeProject(id);
+  if (!deleted) return { error: "Projeto não encontrado" };
 
   revalidatePath("/");
   return { success: true };
